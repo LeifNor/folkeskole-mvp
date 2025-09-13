@@ -16,12 +16,12 @@ onChange?.(r)
 
 
 return (
-<div className="flex flex-wrap items-center gap-2">
+<div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 sm:gap-3">
 {(Object.keys(ROLE_LABELS) as Role[]).map((r) => (
 <button
 key={r}
 onClick={() => pick(r)}
-className={`btn ${role === r ? 'btn-primary' : ''}`}
+className={`btn text-center ${role === r ? 'btn-primary' : ''}`}
 aria-pressed={role === r}
 >
 {ROLE_LABELS[r]}

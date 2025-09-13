@@ -20,18 +20,24 @@ return (
 ))}
 </div>
 {impact && (
-<div className="mt-4 grid gap-6 md:grid-cols-3">
+<div className="mt-4 space-y-4 sm:space-y-0 sm:grid sm:gap-4 lg:grid-cols-3">
 <div>
 <div className="kicker mb-1">Opgaver</div>
-<ul className="list-disc pl-5 text-sm">{impact.opgaver.map(x=> <li key={x}>{x}</li>)}</ul>
+<ul className="list-disc pl-5 text-sm space-y-0.5">
+{impact.opgaver.map(x=> <li key={x} className="break-words">{x}</li>)}
+</ul>
 </div>
 <div>
 <div className="kicker mb-1">Konsekvenser</div>
-<ul className="list-disc pl-5 text-sm">{impact.konsekvenser.map(x=> <li key={x}>{x}</li>)}</ul>
+<ul className="list-disc pl-5 text-sm space-y-0.5">
+{impact.konsekvenser.map(x=> <li key={x} className="break-words">{x}</li>)}
+</ul>
 </div>
 <div>
 <div className="kicker mb-1">Ophører</div>
-<ul className="list-disc pl-5 text-sm">{(impact.ophorer.length? impact.ophorer : ['–']).map(x=> <li key={x}>{x}</li>)}</ul>
+<ul className="list-disc pl-5 text-sm space-y-0.5">
+{(impact.ophorer.length? impact.ophorer : ['–']).map(x=> <li key={x} className="break-words">{x}</li>)}
+</ul>
 </div>
 </div>
 )}
