@@ -3,6 +3,7 @@ import type { Role } from '@/lib/roles'
 import { ROLE_LABELS } from '@/lib/roles'
 import { initiatives } from '@/lib/data/initiatives'
 import InitiativeCard from '@/components/InitiativeCard'
+import TimebankInfo from '@/components/TimebankInfo'
 
 /**
  * Gør Next.js i stand til at generere statiske sider for hver rolle
@@ -21,16 +22,18 @@ export default function ActorPage({ params }: { params: { role: Role } }) {
 const { role } = params
 if (!['laerer','elev','ledelse','foraeldre'].includes(role)) return notFound()
 return (
-<main className="space-y-6">
+<main className="space-y-4 sm:space-y-6">
 <div>
 <div className="kicker">Aktørsider</div>
 <h1 className="h1">{ROLE_LABELS[role]}</h1>
 </div>
-<div className="grid gap-6 md:grid-cols-2">
+<div className="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-2">
 {initiatives.map((init) => (
 <InitiativeCard key={init.id} init={init} role={role} />
 ))}
 </div>
+
+<TimebankInfo role={role} />
 </main>
 )
 }
