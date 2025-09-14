@@ -293,7 +293,7 @@ export const initiatives: Initiative[] = [
 
 ## ===== APP FILER =====
 
-### app/layout.tsx (Root Layout med Navigation)
+### app/layout.tsx (Root Layout med Enhanced Responsive Navigation)
 ```tsx
 import type { Metadata } from 'next'
 import './globals.css'
@@ -312,15 +312,33 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <div className="mx-auto max-w-6xl px-3 sm:px-4 lg:px-6 py-4 sm:py-6">
           <header className="mb-6 sm:mb-8">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div>
+              <div className="text-center sm:text-left">
                 <div className="kicker">Folkeskole 2025/26</div>
                 <h1 className="h1">Kvalitetsprogram – hvad ændres for mig?</h1>
               </div>
-              <nav className="flex gap-2 sm:gap-3">
-                <a className="btn flex-1 sm:flex-none justify-center" href="/">Overblik</a>
-                <DropdownMenu trigger="Aktører" />
-                <a className="btn flex-1 sm:flex-none justify-center" href="/timebank">Timebank</a>
-                <a className="btn flex-1 sm:flex-none justify-center" href="/kilder">Kilder</a>
+              
+              {/* Enhanced responsive navigation */}
+              <nav className="w-full sm:w-auto">
+                <div className="grid grid-cols-2 gap-2 sm:flex sm:gap-3">
+                  <a className="btn col-span-1 flex-1 sm:flex-none justify-center text-center" href="/">
+                    <span className="hidden sm:inline">Overblik</span>
+                    <span className="sm:hidden">Hjem</span>
+                  </a>
+                  <a className="btn col-span-1 flex-1 sm:flex-none justify-center text-center" href="/tidslinje">
+                    <span className="hidden sm:inline">Tidslinje</span>
+                    <span className="sm:hidden">Tid</span>
+                  </a>
+                  <div className="col-span-1">
+                    <DropdownMenu trigger="Aktører" />
+                  </div>
+                  <a className="btn col-span-1 flex-1 sm:flex-none justify-center text-center" href="/timebank">
+                    <span className="hidden sm:inline">Timebank</span>
+                    <span className="sm:hidden">Bank</span>
+                  </a>
+                  <a className="btn col-span-2 sm:col-span-1 flex-1 sm:flex-none justify-center text-center" href="/kilder">
+                    Kilder
+                  </a>
+                </div>
               </nav>
             </div>
           </header>
@@ -441,12 +459,60 @@ body {
   .btn {
     @apply px-4 py-3 text-base min-h-[44px];
   }
+  
+  /* Navigation grid improvements */
+  .h1 {
+    @apply text-xl leading-tight;
+  }
+  
+  .kicker {
+    @apply text-xs;
+  }
+  
+  /* Ensure navigation buttons have consistent sizing */
+  nav .btn {
+    @apply text-sm px-3 py-3 min-h-[48px] font-medium;
+  }
+}
+
+/* iOS Safari and mobile touch optimizations */
+.touch-manipulation {
+  touch-action: manipulation;
+}
+
+/* Prevent iOS Safari zoom on form elements */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  select,
+  textarea,
+  input[type="text"],
+  input[type="password"],
+  input[type="datetime"],
+  input[type="datetime-local"],
+  input[type="date"],
+  input[type="month"],
+  input[type="time"],
+  input[type="week"],
+  input[type="number"],
+  input[type="email"],
+  input[type="url"],
+  input[type="search"],
+  input[type="tel"],
+  input[type="color"] {
+    font-size: 16px;
+  }
+}
+
+/* Ensure dropdowns work on mobile */
+@supports (-webkit-overflow-scrolling: touch) {
+  .dropdown-menu {
+    -webkit-overflow-scrolling: touch;
+  }
 }
 ```
 
 ## ===== VIGTIGSTE KOMPONENTER =====
 
-### components/Accordion.tsx (Foldbar Sektioner)
+### components/Accordion.tsx (Foldbar Sektioner - Enhanced Visual State)
 ```tsx
 'use client'
 import { useState } from 'react'
@@ -461,22 +527,33 @@ export default function Accordion({ items }: { items: AccordionItem[] }) {
 
   return (
     <div className="divide-y divide-gray-200 border border-gray-200 rounded-lg">
-      {items.map((item, index) => (
-        <div key={index}>
-          <button
-            onClick={() => setOpenIndex(openIndex === index ? null : index)}
-            className="w-full flex justify-between items-center p-4 text-left hover:bg-gray-50 transition-colors"
-          >
-            <span className="font-medium">{item.title}</span>
-            <span className="text-xl text-gray-500">{openIndex === index ? '−' : '+'}</span>
-          </button>
-          {openIndex === index && (
-            <div className="p-4 pt-0 text-gray-700 whitespace-pre-line">
-              {item.content}
-            </div>
-          )}
-        </div>
-      ))}
+      {items.map((item, index) => {
+        const isOpen = openIndex === index
+        return (
+          <div key={index} className={`transition-colors ${isOpen ? 'bg-blue-50' : ''}`}>
+            <button
+              onClick={() => setOpenIndex(openIndex === index ? null : index)}
+              className={`w-full flex justify-between items-center p-4 text-left hover:bg-gray-50 transition-colors ${
+                isOpen ? 'bg-blue-50 hover:bg-blue-100' : ''
+              }`}
+            >
+              <span className={`font-medium ${isOpen ? 'text-blue-900' : ''}`}>{item.title}</span>
+              <span className={`text-xl transition-colors ${
+                isOpen ? 'text-blue-600 rotate-0' : 'text-gray-500'
+              }`}>
+                {isOpen ? '−' : '+'}
+              </span>
+            </button>
+            {isOpen && (
+              <div className="p-4 pt-0 bg-blue-50 border-t border-blue-100">
+                <div className="bg-white p-4 rounded-lg border border-blue-200 text-gray-700 whitespace-pre-line shadow-sm">
+                  {item.content}
+                </div>
+              </div>
+            )}
+          </div>
+        )
+      })}
     </div>
   )
 }
@@ -525,7 +602,7 @@ export function statusToBadge(status: Status): BadgeVariant {
 }
 ```
 
-### components/DropdownMenu.tsx (Navigation Dropdown)
+### components/DropdownMenu.tsx (Navigation Dropdown - Mobile Optimized)
 ```tsx
 'use client'
 import { useState, useRef, useEffect } from 'react'
@@ -541,26 +618,55 @@ export default function DropdownMenu({ trigger, className = '' }: DropdownMenuPr
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
+  // Enhanced click/touch outside handling for mobile
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
+    function handleClickOutside(event: MouseEvent | TouchEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false)
       }
     }
 
+    // Listen for both mouse and touch events
     document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
+    document.addEventListener('touchstart', handleClickOutside)
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener('touchstart', handleClickOutside)
+    }
   }, [])
 
+  // Close dropdown on escape key
+  useEffect(() => {
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        setIsOpen(false)
+      }
+    }
+
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscape)
+      return () => document.removeEventListener('keydown', handleEscape)
+    }
+  }, [isOpen])
+
   const roles: Role[] = ['laerer', 'elev', 'ledelse', 'foraeldre']
+
+  const handleToggle = (e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsOpen(!isOpen)
+  }
 
   return (
     <div className={`relative ${className}`} ref={dropdownRef}>
       <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="btn flex items-center gap-1 flex-1 sm:flex-none justify-center"
+        onClick={handleToggle}
+        onTouchEnd={handleToggle}
+        className="btn flex items-center gap-1 flex-1 sm:flex-none justify-center min-h-[44px] touch-manipulation"
         aria-expanded={isOpen}
         aria-haspopup="true"
+        type="button"
       >
         {trigger}
         <span className={`transform transition-transform ${isOpen ? 'rotate-180' : ''}`}>
@@ -569,20 +675,31 @@ export default function DropdownMenu({ trigger, className = '' }: DropdownMenuPr
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-1 w-48 sm:w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50 
-                      max-sm:fixed max-sm:left-3 max-sm:right-3 max-sm:w-auto">
-          {roles.map((role) => (
-            <Link
-              key={role}
-              href={`/aktor/${role}`}
-              className="block px-4 py-3 text-sm hover:bg-gray-50 first:rounded-t-lg last:rounded-b-lg
-                       max-sm:text-center max-sm:py-3"
-              onClick={() => setIsOpen(false)}
-            >
-              {ROLE_LABELS[role]}
-            </Link>
-          ))}
-        </div>
+        <>
+          {/* Backdrop for mobile - helps with z-index and touch handling */}
+          <div 
+            className="fixed inset-0 z-40 sm:hidden" 
+            onClick={() => setIsOpen(false)}
+            onTouchEnd={() => setIsOpen(false)}
+          />
+          
+          <div className="absolute top-full left-0 mt-1 w-48 sm:w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50 
+                        max-sm:fixed max-sm:left-3 max-sm:right-3 max-sm:w-auto max-sm:z-[60]">
+            {roles.map((role) => (
+              <Link
+                key={role}
+                href={`/aktor/${role}`}
+                className="block px-4 py-4 text-sm hover:bg-gray-50 active:bg-gray-100 first:rounded-t-lg last:rounded-b-lg
+                         max-sm:text-center max-sm:py-4 max-sm:min-h-[44px] max-sm:flex max-sm:items-center max-sm:justify-center
+                         touch-manipulation transition-colors"
+                onClick={() => setIsOpen(false)}
+                onTouchEnd={() => setIsOpen(false)}
+              >
+                {ROLE_LABELS[role]}
+              </Link>
+            ))}
+          </div>
+        </>
       )}
     </div>
   )

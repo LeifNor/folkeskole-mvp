@@ -57,4 +57,52 @@ body {
   .btn {
     @apply px-4 py-3 text-base min-h-[44px];
   }
+  
+  /* Navigation grid improvements */
+  .h1 {
+    @apply text-xl leading-tight;
+  }
+  
+  .kicker {
+    @apply text-xs;
+  }
+  
+  /* Ensure navigation buttons have consistent sizing */
+  nav .btn {
+    @apply text-sm px-3 py-3 min-h-[48px] font-medium;
+  }
+}
+
+/* iOS Safari and mobile touch optimizations */
+.touch-manipulation {
+  touch-action: manipulation;
+}
+
+/* Prevent iOS Safari zoom on form elements */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  select,
+  textarea,
+  input[type="text"],
+  input[type="password"],
+  input[type="datetime"],
+  input[type="datetime-local"],
+  input[type="date"],
+  input[type="month"],
+  input[type="time"],
+  input[type="week"],
+  input[type="number"],
+  input[type="email"],
+  input[type="url"],
+  input[type="search"],
+  input[type="tel"],
+  input[type="color"] {
+    font-size: 16px;
+  }
+}
+
+/* Ensure dropdowns work on mobile */
+@supports (-webkit-overflow-scrolling: touch) {
+  .dropdown-menu {
+    -webkit-overflow-scrolling: touch;
+  }
 }

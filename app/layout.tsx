@@ -17,16 +17,33 @@ return (
 <div className="mx-auto max-w-6xl px-3 sm:px-4 lg:px-6 py-4 sm:py-6">
 <header className="mb-6 sm:mb-8">
 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-<div>
+<div className="text-center sm:text-left">
 <div className="kicker">Folkeskole 2025/26</div>
 <h1 className="h1">Kvalitetsprogram – hvad ændres for mig?</h1>
 </div>
-<nav className="flex gap-2 sm:gap-3">
-<a className="btn flex-1 sm:flex-none justify-center" href="/">Overblik</a>
-<a className="btn flex-1 sm:flex-none justify-center" href="/tidslinje">Tidslinje</a>
+
+{/* Enhanced responsive navigation */}
+<nav className="w-full sm:w-auto">
+<div className="grid grid-cols-2 gap-2 sm:flex sm:gap-3">
+<a className="btn col-span-1 flex-1 sm:flex-none justify-center text-center" href="/">
+<span className="hidden sm:inline">Overblik</span>
+<span className="sm:hidden">Hjem</span>
+</a>
+<a className="btn col-span-1 flex-1 sm:flex-none justify-center text-center" href="/tidslinje">
+<span className="hidden sm:inline">Tidslinje</span>
+<span className="sm:hidden">Tid</span>
+</a>
+<div className="col-span-1">
 <DropdownMenu trigger="Aktører" />
-<a className="btn flex-1 sm:flex-none justify-center" href="/timebank">Timebank</a>
-<a className="btn flex-1 sm:flex-none justify-center" href="/kilder">Kilder</a>
+</div>
+<a className="btn col-span-1 flex-1 sm:flex-none justify-center text-center" href="/timebank">
+<span className="hidden sm:inline">Timebank</span>
+<span className="sm:hidden">Bank</span>
+</a>
+<a className="btn col-span-2 sm:col-span-1 flex-1 sm:flex-none justify-center text-center" href="/kilder">
+Kilder
+</a>
+</div>
 </nav>
 </div>
 </header>
