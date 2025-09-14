@@ -5,6 +5,7 @@ import InitiativeCard from '@/components/InitiativeCard'
 import Timeline from '@/components/Timeline'
 import BadgeLegend from '@/components/BadgeLegend'
 import { initiatives } from '@/lib/data/initiatives'
+import { timeline } from '@/lib/data/timeline'
 import type { Role } from '@/lib/roles'
 import { getInitialRole } from '@/lib/roles'
 
@@ -42,8 +43,8 @@ return (
 
 <section className="card p-4 sm:p-6">
 <div className="kicker">Tidslinje</div>
-<h2 className="h2 mb-2">Vigtige ikrafttrædelser</h2>
-<Timeline items={initiatives} />
+<h2 className="h2 mb-2">Vigtige milepæle</h2>
+<Timeline items={timeline} />
 </section>
 </main>
 )

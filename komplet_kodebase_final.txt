@@ -1,0 +1,930 @@
+# FOLKESKOLE MVP - KOMPLET KODEBASE
+
+Denne fil indeholder al relevant kode til Folkeskole MVP applikationen.
+Oprettet: 14. september 2025
+
+## PROJEKT OVERSIGT
+
+**Teknologier:** Next.js 14.2.5, TypeScript, Tailwind CSS, Recharts
+**Deployment:** Azure Static Web Apps
+**Funktionalitet:** Rolle-baseret information, responsive design, data visualisering
+
+## PROJEKT STRUKTUR
+
+```
+folkeskole-mvp/
+├── package.json              # Dependencies og scripts
+├── next.config.js             # Next.js konfiguration (static export)
+├── tsconfig.json              # TypeScript konfiguration
+├── tailwind.config.ts         # Tailwind CSS konfiguration
+├── postcss.config.js          # PostCSS konfiguration
+├── app/
+│   ├── layout.tsx            # Root layout med navigation
+│   ├── page.tsx              # Forside med rolle-vælger
+│   ├── globals.css           # Global styling
+│   ├── aktor/                # Aktørsider
+│   │   ├── laerer/page.tsx   # Lærer/pædagog side (detaljeret)
+│   │   ├── elev/page.tsx     # Elev side (detaljeret)
+│   │   ├── ledelse/page.tsx  # Ledelse side (detaljeret)
+│   │   └── foraeldre/page.tsx # Forældre side (detaljeret)
+│   ├── initiativ/[id]/page.tsx # Dynamisk initiativ-sider
+│   ├── timebank/page.tsx      # Timebank information
+│   └── kilder/page.tsx        # Kilder og referencer
+├── components/               # Genbrugelige komponenter
+│   ├── Accordion.tsx         # Foldbar sektioner
+│   ├── BackButton.tsx        # Tilbage navigation
+│   ├── Badge.tsx             # Status badges (5 varianter)
+│   ├── BadgeLegend.tsx       # Forklaring af badges
+│   ├── Breadcrumb.tsx        # Breadcrumb navigation
+│   ├── DropdownMenu.tsx      # Dropdown navigation
+│   ├── ImpactTabs.tsx        # Tabs for forskellige aktører
+│   ├── InitiativeCard.tsx    # Kort for initiativer
+│   ├── RolePicker.tsx        # Rolle-vælger
+│   ├── TimebankInfo.tsx      # Timebank visualisering
+│   └── Timeline.tsx          # Tidslinje komponent
+└── lib/                      # Data og typer
+    ├── types.ts              # TypeScript type definitioner
+    ├── roles.ts              # Rolle håndtering
+    └── data/initiatives.ts   # Initiativ data
+```
+
+## ===== KONFIGURATIONSFILER =====
+
+### package.json
+```json
+{
+  "name": "folkeskole-mvp",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "build:static": "next build",
+    "start": "serve out"
+  },
+  "dependencies": {
+    "clsx": "2.1.1",
+    "next": "14.2.5",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "recharts": "^3.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "20.14.9",
+    "@types/react": "18.2.66",
+    "@types/react-dom": "18.2.22",
+    "autoprefixer": "10.4.19",
+    "eslint": "8.57.0",
+    "eslint-config-next": "14.2.5",
+    "postcss": "8.4.38",
+    "tailwindcss": "3.4.10",
+    "typescript": "5.5.4"
+  }
+}
+```
+
+### next.config.js
+```javascript
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  output: 'export',
+  trailingSlash: true,
+  images: {
+    unoptimized: true
+  }
+}
+
+module.exports = nextConfig
+```
+
+### tsconfig.json
+```json
+{
+  "compilerOptions": {
+    "lib": ["dom", "dom.iterable", "es6"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
+}
+```
+
+### tailwind.config.ts
+```typescript
+import type { Config } from 'tailwindcss'
+
+const config: Config = {
+  content: [
+    './pages/**/*.{js,ts,jsx,tsx,mdx}',
+    './components/**/*.{js,ts,jsx,tsx,mdx}',
+    './app/**/*.{js,ts,jsx,tsx,mdx}',
+  ],
+  theme: {
+    extend: {
+      fontFamily: {
+        sans: ['ui-sans-serif', 'system-ui', 'sans-serif'],
+      }
+    },
+  },
+  plugins: [],
+}
+export default config
+```
+
+### postcss.config.js
+```javascript
+module.exports = {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+}
+```
+
+## ===== LIB FILER (DATA OG TYPER) =====
+
+### lib/types.ts
+```typescript
+import type { Role } from './roles'
+
+export type Status = 'nyt' | 'aendres' | 'ophorer'
+
+export interface ActorImpact {
+  aktor: Role
+  opgaver: string[]
+  ophorer: string[]
+  konsekvenser: string[]
+  kilder: { navn: string; url: string }[]
+}
+
+export interface Initiative {
+  id: string
+  titel: string
+  tema: 'timebanken' | 'proever' | 'juniormesterlaere' | 'timetal' | 'inklusion' | 'rammer'
+  status: Status
+  ikraft: string // ISO dato
+  beskrivelse: string
+  impacts: ActorImpact[]
+  kilder: { navn: string; url: string }[]
+  lokalNote?: string
+}
+```
+
+### lib/roles.ts
+```typescript
+export type Role = 'laerer' | 'elev' | 'ledelse' | 'foraeldre'
+
+export const ROLE_LABELS: Record<Role, string> = {
+  laerer: 'Lærer/Pædagog',
+  elev: 'Elev',
+  ledelse: 'Ledelse/Forvaltning',
+  foraeldre: 'Forælder'
+}
+
+export function getInitialRole(): Role {
+  if (typeof window === 'undefined') return 'laerer'
+  return (localStorage.getItem('role') as Role) || 'laerer'
+}
+
+export function setRole(role: Role) {
+  if (typeof window !== 'undefined') localStorage.setItem('role', role)
+}
+```
+
+### lib/data/initiatives.ts
+```typescript
+import type { Initiative } from '../types'
+
+export const initiatives: Initiative[] = [
+  {
+    id: 'ny-proevestruktur',
+    titel: 'Ny prøvestruktur fra 2025-26',
+    tema: 'proever',
+    status: 'nyt',
+    ikraft: '2025-08-01',
+    beskrivelse: 'Mundtlige prøver flyttes fra 9. til 8. klasse. Færre skriftlige prøver i 9. klasse.',
+    impacts: [
+      {
+        aktor: 'ledelse',
+        opgaver: ['Opdater prøvekalender og ressourceplan (censorer, lokaler)'],
+        ophorer: [],
+        konsekvenser: ['Lettere logistik, men ny plan for mundtlige prøver'],
+        kilder: []
+      },
+      {
+        aktor: 'foraeldre',
+        opgaver: ['Støt hjemme med mundtlige træningsformer'],
+        ophorer: [],
+        konsekvenser: ['Bedre mulighed for at støtte fokusområder'],
+        kilder: []
+      }
+    ],
+    kilder: [
+      { navn: 'UVM – Ny prøvestruktur', url: 'https://www.uvm.dk/folkeskolen/folkeskolens-proever/aarsplan-og-proeveplaner/ny-proevestruktur-fra-skoleaaret-2025-2026' }
+    ]
+  },
+  {
+    id: 'juniormesterlaere',
+    titel: 'Juniormesterlære i 8.–9. klasse',
+    tema: 'juniormesterlaere',
+    status: 'nyt',
+    ikraft: '2025-08-01',
+    beskrivelse: 'Frivillig ordning hvor 1–2 dage/uge kan foregå i virksomhed/erhvervsskole/FGU/ungdomsskole. Minimum dansk og matematik på skolen. Særlig afgangseksamen målrettet EUD-adgang.',
+    impacts: [
+      {
+        aktor: 'ledelse',
+        opgaver: [
+          'Indgå overenskomster med praktiksteder; sikr tilsyn og kvalitet',
+          'Tilpas skema og ansvar for elevopfølgning'
+        ],
+        ophorer: [],
+        konsekvenser: ['Tættere partnerskaber lokalt; skemalægning bliver mere kompleks'],
+        kilder: [
+          { navn: 'Regeringen – Aftaletekst', url: 'https://regeringen.dk/nyheder/2024/ny-aftale-om-folkeskolen/' }
+        ]
+      },
+      {
+        aktor: 'laerer',
+        opgaver: ['Koordiner læringsmål og vurdering med praktiksteder'],
+        ophorer: [],
+        konsekvenser: ['Mere differentieret elevforløb; stærkere praksisfaglighed'],
+        kilder: []
+      },
+      {
+        aktor: 'elev',
+        opgaver: ['Søg plads i juniormesterlære via UU-vejledning; fasthold dansk/matematik'],
+        ophorer: [],
+        konsekvenser: ['Mere virkelighedsnær skoledag; tydelig vej mod EUD'],
+        kilder: []
+      },
+      {
+        aktor: 'foraeldre',
+        opgaver: ['Samarbejd om valg og transport/logistik'],
+        ophorer: [],
+        konsekvenser: ['Kræver planlægning; kan øge elevmotivation'],
+        kilder: []
+      }
+    ],
+    kilder: [
+      { navn: 'UVM – Aftaleoversigt', url: 'https://www.uvm.dk/folkeskolen/folkeskolens-maal-love-og-regler/politiske-aftaler/folkeskolens-kvalitetsprogram' }
+    ]
+  }
+]
+```
+
+## ===== APP FILER =====
+
+### app/layout.tsx (Root Layout med Navigation)
+```tsx
+import type { Metadata } from 'next'
+import './globals.css'
+import { ReactNode } from 'react'
+import DropdownMenu from '@/components/DropdownMenu'
+
+export const metadata: Metadata = {
+  title: 'Folkeskole 2025/26 – Overblik',
+  description: 'Målrettet overblik over Folkeskolens Kvalitetsprogram – hurtigt, simpelt, urbant.'
+}
+
+export default function RootLayout({ children }: { children: ReactNode }) {
+  return (
+    <html lang="da">
+      <body className="min-h-screen bg-white font-sans text-gray-900">
+        <div className="mx-auto max-w-6xl px-3 sm:px-4 lg:px-6 py-4 sm:py-6">
+          <header className="mb-6 sm:mb-8">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <div className="kicker">Folkeskole 2025/26</div>
+                <h1 className="h1">Kvalitetsprogram – hvad ændres for mig?</h1>
+              </div>
+              <nav className="flex gap-2 sm:gap-3">
+                <a className="btn flex-1 sm:flex-none justify-center" href="/">Overblik</a>
+                <DropdownMenu trigger="Aktører" />
+                <a className="btn flex-1 sm:flex-none justify-center" href="/timebank">Timebank</a>
+                <a className="btn flex-1 sm:flex-none justify-center" href="/kilder">Kilder</a>
+              </nav>
+            </div>
+          </header>
+          {children}
+          <footer className="mt-12 sm:mt-16 border-t pt-4 sm:pt-6 text-sm text-gray-500">
+            <div className="text-center sm:text-left">
+              Senest opdateret: <time>{new Date().toLocaleDateString('da-DK')}</time>
+            </div>
+          </footer>
+        </div>
+      </body>
+    </html>
+  )
+}
+```
+
+### app/page.tsx (Forside)
+```tsx
+'use client'
+import { useEffect, useState } from 'react'
+import RolePicker from '@/components/RolePicker'
+import InitiativeCard from '@/components/InitiativeCard'
+import Timeline from '@/components/Timeline'
+import BadgeLegend from '@/components/BadgeLegend'
+import { initiatives } from '@/lib/data/initiatives'
+import type { Role } from '@/lib/roles'
+import { getInitialRole } from '@/lib/roles'
+
+export default function Page() {
+  const [role, setRole] = useState<Role>('laerer')
+  useEffect(() => setRole(getInitialRole()), [])
+
+  return (
+    <main className="space-y-6 sm:space-y-8">
+      <section className="card p-4 sm:p-6">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex-1">
+            <div className="kicker">Personalisering</div>
+            <h2 className="h2">Vælg din rolle</h2>
+            <p className="muted">Indholdet målrettes efter dit valg (gemmes lokalt).</p>
+          </div>
+          <div className="lg:flex-shrink-0">
+            <RolePicker onChange={setRole} />
+          </div>
+        </div>
+        <div className="mt-4">
+          <BadgeLegend />
+        </div>
+      </section>
+
+      <section className="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
+        {initiatives.map((init) => (
+          <InitiativeCard key={init.id} init={init} role={role} />
+        ))}
+      </section>
+
+      <section className="card p-4 sm:p-6">
+        <div className="kicker">Tidslinje</div>
+        <h2 className="h2 mb-2">Vigtige ikrafttrædelser</h2>
+        <Timeline items={initiatives} />
+      </section>
+    </main>
+  )
+}
+```
+
+### app/globals.css (Global Styling)
+```css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --radius: 14px;
+}
+
+html, body { height: 100%; }
+body {
+  @apply bg-white text-gray-900 antialiased;
+}
+
+/* Urbant, rent kortlook */
+.card {
+  @apply rounded-2xl border border-gray-200 bg-white shadow-sm;
+}
+.badge {
+  @apply inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium uppercase tracking-wide;
+}
+.badge-new { @apply border-gray-900 text-gray-900; }
+.badge-change { @apply border-gray-400 text-gray-700; }
+.badge-stop { @apply border-red-500 text-red-600; }
+
+.btn {
+  @apply inline-flex items-center justify-center rounded-xl border border-gray-300 px-3 py-2 text-sm font-semibold hover:bg-gray-50 active:scale-[.99] transition-all;
+}
+.btn-primary {
+  @apply border-gray-900 bg-gray-900 text-white hover:bg-black;
+}
+
+/* Responsive typography */
+.kicker { @apply text-[11px] uppercase tracking-widest text-gray-500; }
+.h1 { @apply text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold leading-tight; }
+.h2 { @apply text-lg sm:text-xl md:text-2xl font-bold leading-tight; }
+.h3 { @apply text-base sm:text-lg md:text-xl font-semibold leading-tight; }
+.muted { @apply text-gray-600 text-sm sm:text-base; }
+
+/* Simple tabs */
+.tabs { @apply flex gap-2 border-b overflow-x-auto; }
+.tab { @apply -mb-px border-b-2 border-transparent px-3 py-2 text-sm text-gray-600 whitespace-nowrap; }
+.tab-active { @apply border-gray-900 text-gray-900; }
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+  .card {
+    @apply rounded-xl;
+  }
+  
+  .btn {
+    @apply px-4 py-3 text-base min-h-[44px];
+  }
+}
+```
+
+## ===== VIGTIGSTE KOMPONENTER =====
+
+### components/Accordion.tsx (Foldbar Sektioner)
+```tsx
+'use client'
+import { useState } from 'react'
+
+interface AccordionItem {
+  title: string
+  content: string
+}
+
+export default function Accordion({ items }: { items: AccordionItem[] }) {
+  const [openIndex, setOpenIndex] = useState<number | null>(null)
+
+  return (
+    <div className="divide-y divide-gray-200 border border-gray-200 rounded-lg">
+      {items.map((item, index) => (
+        <div key={index}>
+          <button
+            onClick={() => setOpenIndex(openIndex === index ? null : index)}
+            className="w-full flex justify-between items-center p-4 text-left hover:bg-gray-50 transition-colors"
+          >
+            <span className="font-medium">{item.title}</span>
+            <span className="text-xl text-gray-500">{openIndex === index ? '−' : '+'}</span>
+          </button>
+          {openIndex === index && (
+            <div className="p-4 pt-0 text-gray-700 whitespace-pre-line">
+              {item.content}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  )
+}
+```
+
+### components/Badge.tsx (Status Badges)
+```tsx
+import clsx from 'clsx'
+import type { Status } from '@/lib/types'
+
+type BadgeVariant = 'new' | 'change' | 'stop' | 'info' | 'warning'
+
+interface BadgeProps {
+  variant: BadgeVariant
+  children: React.ReactNode
+  className?: string
+}
+
+const variantStyles: Record<BadgeVariant, string> = {
+  new: 'border-gray-900 text-gray-900 bg-white',
+  change: 'border-orange-400 text-orange-700 bg-orange-50',
+  stop: 'border-red-400 text-red-700 bg-red-50',
+  info: 'border-blue-400 text-blue-700 bg-blue-50',
+  warning: 'border-yellow-400 text-yellow-700 bg-yellow-50'
+}
+
+export default function Badge({ variant, children, className }: BadgeProps) {
+  return (
+    <span className={clsx(
+      'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium uppercase tracking-wide',
+      variantStyles[variant],
+      className
+    )}>
+      {children}
+    </span>
+  )
+}
+
+export function statusToBadge(status: Status): BadgeVariant {
+  switch (status) {
+    case 'nyt': return 'new'
+    case 'aendres': return 'change'
+    case 'ophorer': return 'stop'
+    default: return 'info'
+  }
+}
+```
+
+### components/DropdownMenu.tsx (Navigation Dropdown)
+```tsx
+'use client'
+import { useState, useRef, useEffect } from 'react'
+import Link from 'next/link'
+import { ROLE_LABELS, type Role } from '@/lib/roles'
+
+interface DropdownMenuProps {
+  trigger: string
+  className?: string
+}
+
+export default function DropdownMenu({ trigger, className = '' }: DropdownMenuProps) {
+  const [isOpen, setIsOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  const roles: Role[] = ['laerer', 'elev', 'ledelse', 'foraeldre']
+
+  return (
+    <div className={`relative ${className}`} ref={dropdownRef}>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="btn flex items-center gap-1 flex-1 sm:flex-none justify-center"
+        aria-expanded={isOpen}
+        aria-haspopup="true"
+      >
+        {trigger}
+        <span className={`transform transition-transform ${isOpen ? 'rotate-180' : ''}`}>
+          ▼
+        </span>
+      </button>
+
+      {isOpen && (
+        <div className="absolute top-full left-0 mt-1 w-48 sm:w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50 
+                      max-sm:fixed max-sm:left-3 max-sm:right-3 max-sm:w-auto">
+          {roles.map((role) => (
+            <Link
+              key={role}
+              href={`/aktor/${role}`}
+              className="block px-4 py-3 text-sm hover:bg-gray-50 first:rounded-t-lg last:rounded-b-lg
+                       max-sm:text-center max-sm:py-3"
+              onClick={() => setIsOpen(false)}
+            >
+              {ROLE_LABELS[role]}
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+```
+
+### components/Breadcrumb.tsx (Breadcrumb Navigation)
+```tsx
+import Link from 'next/link'
+
+interface BreadcrumbItem {
+  label: string
+  href?: string
+}
+
+interface BreadcrumbProps {
+  items: BreadcrumbItem[]
+  className?: string
+}
+
+export default function Breadcrumb({ items, className = '' }: BreadcrumbProps) {
+  return (
+    <nav aria-label="Breadcrumb" className={`mb-4 ${className}`}>
+      <ol className="flex items-center space-x-2 text-sm text-gray-600">
+        {items.map((item, index) => (
+          <li key={index} className="flex items-center">
+            {index > 0 && (
+              <span className="mx-2 text-gray-400" aria-hidden="true">
+                /
+              </span>
+            )}
+            {item.href ? (
+              <Link 
+                href={item.href}
+                className="hover:text-gray-900 transition-colors"
+              >
+                {item.label}
+              </Link>
+            ) : (
+              <span className="text-gray-900 font-medium" aria-current="page">
+                {item.label}
+              </span>
+            )}
+          </li>
+        ))}
+      </ol>
+    </nav>
+  )
+}
+```
+
+### components/BackButton.tsx (Tilbage Navigation)
+```tsx
+'use client'
+import { useRouter } from 'next/navigation'
+
+interface BackButtonProps {
+  label?: string
+  className?: string
+}
+
+export default function BackButton({ label = 'Tilbage', className = '' }: BackButtonProps) {
+  const router = useRouter()
+
+  return (
+    <button
+      onClick={() => router.back()}
+      className={`inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors ${className}`}
+    >
+      <span aria-hidden="true">←</span>
+      {label}
+    </button>
+  )
+}
+```
+
+## ===== AKTØRSIDER =====
+
+### app/aktor/laerer/page.tsx (Lærer/Pædagog Side)
+```tsx
+import type { Role } from '@/lib/roles'
+import { ROLE_LABELS } from '@/lib/roles'
+import { initiatives } from '@/lib/data/initiatives'
+import InitiativeCard from '@/components/InitiativeCard'
+import Accordion from '@/components/Accordion'
+import Breadcrumb from '@/components/Breadcrumb'
+
+export default function ActorPage() {
+  const role = 'laerer' as Role
+
+  const breadcrumbItems = [
+    { label: 'Hjem', href: '/' },
+    { label: 'Aktører', href: '/' },
+    { label: ROLE_LABELS[role] }
+  ]
+
+  return (
+    <main className="space-y-12">
+      <Breadcrumb items={breadcrumbItems} />
+      
+      <header className="space-y-2">
+        <div className="kicker">Aktørsider</div>
+        <h1 className="h1">{ROLE_LABELS[role]}</h1>
+        <p className="lead">
+          Fra skoleåret 2025/26 ændres lærernes og pædagogernes hverdag markant.
+          Frisættelse, færre centrale krav og den nye "timebank" giver både
+          større pædagogisk frihed og nye forpligtelser.
+        </p>
+      </header>
+
+      <section className="space-y-4">
+        <h2 className="h2">Baggrund</h2>
+        <p>
+          Folkeskolens kvalitetsprogram repræsenterer et brud med
+          centralstyringen fra 2014-reformen. Antallet af bindende mål reduceres
+          fra flere tusinde til 215 i en overgangsperiode. Ansvar for
+          organisering og prioritering flyttes nu til skoleniveau, og lærernes
+          faglighed får større vægt.
+        </p>
+      </section>
+
+      <section className="space-y-4">
+        <h2 className="h2">Hvad betyder det for lærere og pædagoger?</h2>
+        <Accordion
+          items={[
+            {
+              title: 'Øget pædagogisk frihed og ansvar',
+              content: `Med afskaffelsen af de detaljerede Fælles Mål får du som lærer et langt større handlerum. Undervisningen skal stadig følge overordnede fagplaner, men den lokale tilrettelæggelse hviler nu på teamets faglige dømmekraft. Det betyder frihed til at skabe meningsfulde forløb, men også ansvar for at sikre progression uden detaljerede nationale læseplaner.`
+            },
+            {
+              title: 'Timebanken – en ny ramme for ressourcer',
+              content: `Den understøttende undervisning er afskaffet. I stedet får skolerne adgang til en fleksibel ressourcepulje på ca. 2,7 mia. kr. årligt. Midlerne kan bruges til to-voksenordninger, co-teaching, intensive fagforløb eller kompetenceudvikling. Dog er tre ting lovbundne: klassens tid, obligatoriske screeninger og en styrket indsats i dansk og matematik for de 10 % mest udfordrede elever. For dig som lærer betyder det, at din rolle i støtteforløb og samarbejde med pædagoger bliver mere central og kan variere meget fra skole til skole.`
+            },
+            {
+              title: 'Nye roller og faglige krav',
+              content: `Udskolingslærere får ansvar for juniormesterlære, hvor elever kan tilbringe 1–2 dage ugentligt i virksomhed eller erhvervsskole. Derudover skal nogle lærere udvikle og varetage undervisning i det nye valgfag "teknologiforståelse". Pædagoger får en styrket rolle i indskolingen gennem to-voksenordninger og skal være med til at understøtte de nye intensive indsatser.`
+            },
+            {
+              title: 'Arbejdsvilkår og kompetenceløft',
+              content: `Arbejdsbyrden bliver mere forskellig fra skole til skole. Nogle steder vil timebanken betyde flere co-teaching-forløb og efteruddannelse, andre steder flere ressourcer til SFO. Der er afsat en national ramme på 200 mio. kr. årligt til kompetenceudvikling, især i specialpædagogik og klasseledelse.`
+            }
+          ]}
+        />
+      </section>
+
+      <section className="space-y-4">
+        <h2 className="h2">Initiativer på tværs</h2>
+        <div className="grid gap-6 md:grid-cols-2">
+          {initiatives.map((init) => (
+            <InitiativeCard key={init.id} init={init} role={role} />
+          ))}
+        </div>
+      </section>
+    </main>
+  )
+}
+```
+
+## ===== DATAHÅNDTERING OG VISUALISERING =====
+
+### components/InitiativeCard.tsx (Initiativ Kort)
+```tsx
+import Badge, { statusToBadge } from '@/components/Badge'
+import type { Initiative } from '@/lib/types'
+import type { Role } from '@/lib/roles'
+
+export default function InitiativeCard({ init, role }: { init: Initiative; role: Role }) {
+  const impact = init.impacts.find((i) => i.aktor === role)
+  
+  return (
+    <article className="card p-4 sm:p-6 hover:shadow-md transition-shadow">
+      <div className="flex items-start gap-3 mb-3">
+        <Badge variant={statusToBadge(init.status)}>
+          {init.status}
+        </Badge>
+        <div className="min-w-0 flex-1">
+          <h3 className="h3 leading-tight break-words">{init.titel}</h3>
+          <p className="muted text-sm">
+            Ikraft: {new Date(init.ikraft).toLocaleDateString('da-DK')}
+          </p>
+        </div>
+      </div>
+      
+      <p className="muted mb-4">{init.beskrivelse}</p>
+      
+      {impact && (
+        <div className="space-y-3">
+          {impact.opgaver.length > 0 && (
+            <div>
+              <h4 className="font-semibold text-sm mb-1">Nye opgaver:</h4>
+              <ul className="text-sm space-y-1">
+                {impact.opgaver.map((opgave, idx) => (
+                  <li key={idx} className="flex items-start gap-2">
+                    <span className="text-green-600 mt-0.5">+</span>
+                    <span>{opgave}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          
+          {impact.ophorer.length > 0 && (
+            <div>
+              <h4 className="font-semibold text-sm mb-1">Ophører:</h4>
+              <ul className="text-sm space-y-1">
+                {impact.ophorer.map((ophorer, idx) => (
+                  <li key={idx} className="flex items-start gap-2">
+                    <span className="text-red-600 mt-0.5">−</span>
+                    <span>{ophorer}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          
+          {impact.konsekvenser.length > 0 && (
+            <div>
+              <h4 className="font-semibold text-sm mb-1">Konsekvenser:</h4>
+              <ul className="text-sm space-y-1">
+                {impact.konsekvenser.map((konsekvens, idx) => (
+                  <li key={idx} className="flex items-start gap-2">
+                    <span className="text-blue-600 mt-0.5">→</span>
+                    <span>{konsekvens}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
+      
+      <div className="mt-4 pt-3 border-t">
+        <a
+          href={`/initiativ/${init.id}`}
+          className="text-sm font-medium text-gray-900 hover:underline"
+        >
+          Læs mere →
+        </a>
+      </div>
+    </article>
+  )
+}
+```
+
+### components/TimebankInfo.tsx (Timebank Visualisering)
+```tsx
+'use client'
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from 'recharts'
+import Badge from '@/components/Badge'
+import type { Role } from '@/lib/roles'
+
+const timebankData = [
+  { kategori: 'To-voksen', mio: 800 },
+  { kategori: 'Intensive forløb', mio: 600 },
+  { kategori: 'Kompetenceudvikling', mio: 400 },
+  { kategori: 'SFO/fritid', mio: 900 }
+]
+
+export default function TimebankInfo({ role }: { role: Role }) {
+  return (
+    <div className="card p-4 sm:p-6">
+      <div className="flex items-center gap-2 mb-4">
+        <div className="kicker">Timebanken</div>
+        <Badge variant="new">NYT</Badge>
+      </div>
+      <h2 className="h2 mb-4">2,7 mia. kr. årligt til lokale prioriteringer</h2>
+      
+      <div className="grid gap-6 lg:grid-cols-2">
+        <div>
+          <p className="muted mb-4">
+            Timebanken erstatter den understøttende undervisning og giver skolerne 
+            fleksible midler til lokale prioriteringer.
+          </p>
+          
+          {role === 'ledelse' && (
+            <div className="bg-blue-50 p-3 rounded-lg">
+              <p className="text-sm font-medium text-blue-900">
+                Som ledelse har I ansvar for at fordele timebankens midler strategisk
+                mellem to-voksenordninger, intensive fagforløb og kompetenceudvikling.
+              </p>
+            </div>
+          )}
+          
+          {role === 'laerer' && (
+            <div className="bg-green-50 p-3 rounded-lg">
+              <p className="text-sm font-medium text-green-900">
+                Som lærer kan timebanken betyde flere co-teaching forløb, 
+                specialiserede intensive kurser eller øget efteruddannelse.
+              </p>
+            </div>
+          )}
+        </div>
+        
+        <div>
+          <h3 className="font-semibold mb-3">Fordeling af midler (mio. kr.)</h3>
+          <ResponsiveContainer width="100%" height={200}>
+            <BarChart data={timebankData}>
+              <XAxis 
+                dataKey="kategori" 
+                fontSize={12}
+                angle={-45}
+                textAnchor="end"
+                height={60}
+              />
+              <YAxis fontSize={12} />
+              <Bar dataKey="mio" fill="#374151" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+    </div>
+  )
+}
+```
+
+## ===== DEPLOYMENT OG FUNKTIONALITET =====
+
+**Navigation System:**
+- Dropdown menu i header for aktørsider
+- Breadcrumb navigation på alle undersider
+- Tilbage-knap på detaljesider
+- Responsive mobile navigation
+
+**Badge System:**
+- 5 forskellige badge-varianter (new, change, stop, info, warning)
+- Konsistent visuel identitet på tværs af komponenter
+- Badge legend for forklaring
+
+**Data Visualisering:**
+- Recharts integration for timebank data
+- Responsive bar charts
+- Rolle-specifik information
+
+**Responsive Design:**
+- Mobile-first tilgang
+- Tailwind CSS utility classes
+- Optimeret til touch devices
+
+**Static Export:**
+- Konfigureret til Azure Static Web Apps
+- Next.js static generation
+- SEO optimeret metadata
+
+Dette er den komplette kodebase for Folkeskole MVP applikationen.
+```

@@ -1,0 +1,551 @@
+# FOLKESKOLE MVP - KOMPLET KODEBASE
+
+Denne fil indeholder al relevant kode til Folkeskole MVP applikationen.
+Oprettet: 14. september 2025
+
+## PROJEKT STRUKTUR
+
+```
+folkeskole-mvp/
+├── package.json
+├── next.config.js
+├── tsconfig.json
+├── tailwind.config.ts
+├── postcss.config.js
+├── app/
+│   ├── layout.tsx
+│   ├── page.tsx
+│   ├── globals.css
+│   ├── aktor/
+│   │   ├── laerer/page.tsx
+│   │   ├── elev/page.tsx
+│   │   ├── ledelse/page.tsx
+│   │   └── foraeldre/page.tsx
+│   ├── initiativ/[id]/page.tsx
+│   ├── timebank/page.tsx
+│   ├── kilder/page.tsx
+│   └── tema/[slug]/page.tsx
+├── components/
+│   ├── Accordion.tsx
+│   ├── BackButton.tsx
+│   ├── Badge.tsx
+│   ├── BadgeLegend.tsx
+│   ├── Breadcrumb.tsx
+│   ├── DropdownMenu.tsx
+│   ├── ImpactTabs.tsx
+│   ├── InitiativeCard.tsx
+│   ├── RolePicker.tsx
+│   ├── TaskList.tsx
+│   ├── TimebankInfo.tsx
+│   └── Timeline.tsx
+└── lib/
+    ├── types.ts
+    ├── roles.ts
+    └── data/initiatives.ts
+```
+
+## ===== KONFIGURATIONSFILER =====
+
+### package.json
+```json
+{"name":"folkeskole-mvp","private":true,"version":"0.1.0","scripts":{"dev":"next dev","build":"next build","build:static":"next build","start":"serve out"},"dependencies":{"clsx":"2.1.1","next":"14.2.5","react":"18.3.1","react-dom":"18.3.1","recharts":"^3.2.0"},"devDependencies":{"@types/node":"20.14.9","@types/react":"18.2.66","@types/react-dom":"18.2.22","autoprefixer":"10.4.19","eslint":"8.57.0","eslint-config-next":"14.2.5","postcss":"8.4.38","tailwindcss":"3.4.10","typescript":"5.5.4"}}
+```
+
+### next.config.js
+```javascript
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  output: 'export',
+  trailingSlash: true,
+  images: {
+    unoptimized: true
+  }
+}
+
+module.exports = nextConfig
+```
+
+### tsconfig.json
+```json
+{
+  "compilerOptions": {
+    "lib": ["dom", "dom.iterable", "es6"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
+}
+```
+
+### tailwind.config.ts
+```typescript
+import type { Config } from 'tailwindcss'
+
+const config: Config = {
+  content: [
+    './pages/**/*.{js,ts,jsx,tsx,mdx}',
+    './components/**/*.{js,ts,jsx,tsx,mdx}',
+    './app/**/*.{js,ts,jsx,tsx,mdx}',
+  ],
+  theme: {
+    extend: {
+      fontFamily: {
+        sans: ['ui-sans-serif', 'system-ui', 'sans-serif'],
+      }
+    },
+  },
+  plugins: [],
+}
+export default config
+```
+
+### postcss.config.js
+```javascript
+module.exports = {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+}
+```
+
+# FOLKESKOLE MVP - KOMPLET KODEBASE
+
+Denne fil indeholder al relevant kode til Folkeskole MVP applikationen.
+Oprettet: 14. september 2025
+
+## PROJEKT STRUKTUR
+
+```
+folkeskole-mvp/
+├── package.json
+├── next.config.js
+├── tsconfig.json
+├── tailwind.config.ts
+├── postcss.config.js
+├── app/
+│   ├── layout.tsx
+│   ├── page.tsx
+│   ├── globals.css
+│   ├── aktor/
+│   │   ├── laerer/page.tsx
+│   │   ├── elev/page.tsx
+│   │   ├── ledelse/page.tsx
+│   │   └── foraeldre/page.tsx
+│   ├── initiativ/[id]/page.tsx
+│   ├── timebank/page.tsx
+│   ├── kilder/page.tsx
+│   └── tema/[slug]/page.tsx
+├── components/
+│   ├── Accordion.tsx
+│   ├── BackButton.tsx
+│   ├── Badge.tsx
+│   ├── BadgeLegend.tsx
+│   ├── Breadcrumb.tsx
+│   ├── DropdownMenu.tsx
+│   ├── ImpactTabs.tsx
+│   ├── InitiativeCard.tsx
+│   ├── RolePicker.tsx
+│   ├── TaskList.tsx
+│   ├── TimebankInfo.tsx
+│   └── Timeline.tsx
+└── lib/
+    ├── types.ts
+    ├── roles.ts
+    └── data/initiatives.ts
+```
+
+## ===== KONFIGURATIONSFILER =====
+
+### package.json
+```json
+{"name":"folkeskole-mvp","private":true,"version":"0.1.0","scripts":{"dev":"next dev","build":"next build","build:static":"next build","start":"serve out"},"dependencies":{"clsx":"2.1.1","next":"14.2.5","react":"18.3.1","react-dom":"18.3.1","recharts":"^3.2.0"},"devDependencies":{"@types/node":"20.14.9","@types/react":"18.2.66","@types/react-dom":"18.2.22","autoprefixer":"10.4.19","eslint":"8.57.0","eslint-config-next":"14.2.5","postcss":"8.4.38","tailwindcss":"3.4.10","typescript":"5.5.4"}}
+```
+
+### next.config.js
+```javascript
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  output: 'export',
+  trailingSlash: true,
+  images: {
+    unoptimized: true
+  }
+}
+
+module.exports = nextConfig
+```
+
+### tsconfig.json
+```json
+{
+  "compilerOptions": {
+    "lib": ["dom", "dom.iterable", "es6"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
+}
+```
+
+### tailwind.config.ts
+```typescript
+import type { Config } from 'tailwindcss'
+
+const config: Config = {
+  content: [
+    './pages/**/*.{js,ts,jsx,tsx,mdx}',
+    './components/**/*.{js,ts,jsx,tsx,mdx}',
+    './app/**/*.{js,ts,jsx,tsx,mdx}',
+  ],
+  theme: {
+    extend: {
+      fontFamily: {
+        sans: ['ui-sans-serif', 'system-ui', 'sans-serif'],
+      }
+    },
+  },
+  plugins: [],
+}
+export default config
+```
+
+### postcss.config.js
+```javascript
+module.exports = {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+}
+```
+
+## ===== LIB FILER (DATA OG TYPER) =====
+
+### lib/types.ts
+```typescript
+import type { Role } from './roles'
+
+export type Status = 'nyt' | 'aendres' | 'ophorer'
+
+export interface ActorImpact {
+aktor: Role
+opgaver: string[]
+ophorer: string[]
+konsekvenser: string[]
+kilder: { navn: string; url: string }[]
+}
+
+export interface Initiative {
+id: string
+titel: string
+tema: 'timebanken' | 'proever' | 'juniormesterlaere' | 'timetal' | 'inklusion' | 'rammer'
+status: Status
+ikraft: string // ISO dato
+beskrivelse: string
+impacts: ActorImpact[]
+kilder: { navn: string; url: string }[]
+lokalNote?: string
+}
+```
+
+### lib/roles.ts
+```typescript
+export type Role = 'laerer' | 'elev' | 'ledelse' | 'foraeldre'
+
+export const ROLE_LABELS: Record<Role, string> = {
+laerer: 'Lærer/Pædagog',
+elev: 'Elev',
+ledelse: 'Ledelse/Forvaltning',
+foraeldre: 'Forælder'
+}
+
+export function getInitialRole(): Role {
+if (typeof window === 'undefined') return 'laerer'
+return (localStorage.getItem('role') as Role) || 'laerer'
+}
+
+export function setRole(role: Role) {
+if (typeof window !== 'undefined') localStorage.setItem('role', role)
+}
+```
+
+### lib/data/initiatives.ts
+```typescript
+import type { Initiative } from '../types'
+
+export const initiatives: Initiative[] = [
+{
+id: 'ny-proevestruktur',
+titel: 'Ny prøvestruktur fra 2025-26',
+tema: 'proever',
+status: 'nyt',
+ikraft: '2025-08-01',
+beskrivelse: 'Mundtlige prøver flyttes fra 9. til 8. klasse. Færre skriftlige prøver i 9. klasse.',
+impacts: [
+{
+aktor: 'ledelse',
+opgaver: ['Opdater prøvekalender og ressourceplan (censorer, lokaler)'],
+ophorer: [],
+konsekvenser: ['Lettere logistik, men ny plan for mundtlige prøver'],
+kilder: []
+},
+{
+aktor: 'foraeldre',
+opgaver: ['Støt hjemme med mundtlige træningsformer'],
+ophorer: [],
+konsekvenser: ['Bedre mulighed for at støtte fokusområder'],
+kilder: []
+}
+],
+kilder: [
+{ navn: 'UVM – Ny prøvestruktur', url: 'https://www.uvm.dk/folkeskolen/folkeskolens-proever/aarsplan-og-proeveplaner/ny-proevestruktur-fra-skoleaaret-2025-2026' }
+]
+},
+{
+id: 'juniormesterlaere',
+titel: 'Juniormesterlære i 8.–9. klasse',
+tema: 'juniormesterlaere',
+status: 'nyt',
+ikraft: '2025-08-01',
+beskrivelse:
+'Frivillig ordning hvor 1–2 dage/uge kan foregå i virksomhed/erhvervsskole/FGU/ungdomsskole. Minimum dansk og matematik på skolen. Særlig afgangseksamen målrettet EUD-adgang.',
+impacts: [
+{
+aktor: 'ledelse',
+opgaver: [
+'Indgå overenskomster med praktiksteder; sikr tilsyn og kvalitet',
+'Tilpas skema og ansvar for elevopfølgning'
+],
+ophorer: [],
+konsekvenser: ['Tættere partnerskaber lokalt; skemalægning bliver mere kompleks'],
+kilder: [
+{ navn: 'Regeringen – Aftaletekst', url: 'https://regeringen.dk/nyheder/2024/ny-aftale-om-folkeskolen/' }
+]
+},
+{
+aktor: 'laerer',
+opgaver: ['Koordiner læringsmål og vurdering med praktiksteder'],
+ophorer: [],
+konsekvenser: ['Mere differentieret elevforløb; stærkere praksisfaglighed'],
+kilder: []
+},
+{
+aktor: 'elev',
+opgaver: ['Søg plads i juniormesterlære via UU-vejledning; fasthold dansk/matematik'],
+ophorer: [],
+konsekvenser: ['Mere virkelighedsnær skoledag; tydelig vej mod EUD'],
+kilder: []
+},
+{
+aktor: 'foraeldre',
+opgaver: ['Samarbejd om valg og transport/logistik'],
+ophorer: [],
+konsekvenser: ['Kræver planlægning; kan øge elevmotivation'],
+kilder: []
+}
+],
+kilder: [
+{ navn: 'UVM – Aftaleoversigt', url: 'https://www.uvm.dk/folkeskolen/folkeskolens-maal-love-og-regler/politiske-aftaler/folkeskolens-kvalitetsprogram' }
+]
+}
+]
+```
+
+## ===== APP FILER =====
+
+### app/layout.tsx
+```tsx
+import type { Metadata } from 'next'
+import './globals.css'
+import { ReactNode } from 'react'
+import DropdownMenu from '@/components/DropdownMenu'
+
+export const metadata: Metadata = {
+title: 'Folkeskole 2025/26 – Overblik',
+description: 'Målrettet overblik over Folkeskolens Kvalitetsprogram – hurtigt, simpelt, urbant.'
+}
+
+export default function RootLayout({ children }: { children: ReactNode }) {
+return (
+<html lang="da">
+<body className="min-h-screen bg-white font-sans text-gray-900">
+<div className="mx-auto max-w-6xl px-3 sm:px-4 lg:px-6 py-4 sm:py-6">
+<header className="mb-6 sm:mb-8">
+<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+<div>
+<div className="kicker">Folkeskole 2025/26</div>
+<h1 className="h1">Kvalitetsprogram – hvad ændres for mig?</h1>
+</div>
+<nav className="flex gap-2 sm:gap-3">
+<a className="btn flex-1 sm:flex-none justify-center" href="/">Overblik</a>
+<DropdownMenu trigger="Aktører" />
+<a className="btn flex-1 sm:flex-none justify-center" href="/timebank">Timebank</a>
+<a className="btn flex-1 sm:flex-none justify-center" href="/kilder">Kilder</a>
+</nav>
+</div>
+</header>
+{children}
+<footer className="mt-12 sm:mt-16 border-t pt-4 sm:pt-6 text-sm text-gray-500">
+<div className="text-center sm:text-left">
+Senest opdateret: <time>{new Date().toLocaleDateString('da-DK')}</time>
+</div>
+</footer>
+</div>
+</body>
+</html>
+)
+}
+```
+
+### app/page.tsx
+```tsx
+'use client'
+import { useEffect, useState } from 'react'
+import RolePicker from '@/components/RolePicker'
+import InitiativeCard from '@/components/InitiativeCard'
+import Timeline from '@/components/Timeline'
+import BadgeLegend from '@/components/BadgeLegend'
+import { initiatives } from '@/lib/data/initiatives'
+import type { Role } from '@/lib/roles'
+import { getInitialRole } from '@/lib/roles'
+
+export default function Page() {
+const [role, setRole] = useState<Role>('laerer')
+useEffect(()=> setRole(getInitialRole()), [])
+
+return (
+<main className="space-y-6 sm:space-y-8">
+<section className="card p-4 sm:p-6">
+<div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+<div className="flex-1">
+<div className="kicker">Personalisering</div>
+<h2 className="h2">Vælg din rolle</h2>
+<p className="muted">Indholdet målrettes efter dit valg (gemmes lokalt).</p>
+</div>
+<div className="lg:flex-shrink-0">
+<RolePicker onChange={setRole} />
+</div>
+</div>
+<div className="mt-4">
+<BadgeLegend />
+</div>
+</section>
+
+<section className="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
+{initiatives.map((init) => (
+<InitiativeCard key={init.id} init={init} role={role} />
+))}
+</section>
+
+<section className="card p-4 sm:p-6">
+<div className="kicker">Tidslinje</div>
+<h2 className="h2 mb-2">Vigtige ikrafttrædelser</h2>
+<Timeline items={initiatives} />
+</section>
+</main>
+)
+}
+```
+
+### app/globals.css
+```css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+:root {
+--radius: 14px;
+}
+
+
+html, body { height: 100%; }
+body {
+@apply bg-white text-gray-900 antialiased;
+}
+
+
+/* Urbant, rent kortlook */
+.card {
+@apply rounded-2xl border border-gray-200 bg-white shadow-sm;
+}
+.badge {
+@apply inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium uppercase tracking-wide;
+}
+.badge-new { @apply border-gray-900 text-gray-900; }
+.badge-change { @apply border-gray-400 text-gray-700; }
+.badge-stop { @apply border-red-500 text-red-600; }
+
+
+.btn {
+@apply inline-flex items-center justify-center rounded-xl border border-gray-300 px-3 py-2 text-sm font-semibold hover:bg-gray-50 active:scale-[.99] transition-all;
+}
+.btn-primary {
+@apply border-gray-900 bg-gray-900 text-white hover:bg-black;
+}
+
+
+/* Responsive typography */
+.kicker { @apply text-[11px] uppercase tracking-widest text-gray-500; }
+.h1 { @apply text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold leading-tight; }
+.h2 { @apply text-lg sm:text-xl md:text-2xl font-bold leading-tight; }
+.h3 { @apply text-base sm:text-lg md:text-xl font-semibold leading-tight; }
+.muted { @apply text-gray-600 text-sm sm:text-base; }
+
+
+/* Simple tabs */
+.tabs { @apply flex gap-2 border-b overflow-x-auto; }
+.tab { @apply -mb-px border-b-2 border-transparent px-3 py-2 text-sm text-gray-600 whitespace-nowrap; }
+.tab-active { @apply border-gray-900 text-gray-900; }
+
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+  .card {
+    @apply rounded-xl;
+  }
+  
+  .btn {
+    @apply px-4 py-3 text-base min-h-[44px];
+  }
+}
+```

@@ -23,6 +23,7 @@ return (
 </div>
 <nav className="flex gap-2 sm:gap-3">
 <a className="btn flex-1 sm:flex-none justify-center" href="/">Overblik</a>
+<a className="btn flex-1 sm:flex-none justify-center" href="/tidslinje">Tidslinje</a>
 <DropdownMenu trigger="Aktører" />
 <a className="btn flex-1 sm:flex-none justify-center" href="/timebank">Timebank</a>
 <a className="btn flex-1 sm:flex-none justify-center" href="/kilder">Kilder</a>
