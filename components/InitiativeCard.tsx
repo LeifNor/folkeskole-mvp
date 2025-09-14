@@ -1,16 +1,14 @@
 import Link from 'next/link'
 import type { Initiative } from '@/lib/types'
 import { ROLE_LABELS, type Role } from '@/lib/roles'
+import Badge from '@/components/Badge'
 
-
-function StatusBadge({ status }: { status: Initiative['status'] }) {
-const map = {
-nyt: 'badge badge-new',
-aendres: 'badge badge-change',
-ophorer: 'badge badge-stop'
-} as const
-const label = status === 'nyt' ? 'Nyt' : status === 'aendres' ? 'Ændres' : 'Ophører'
-return <span className={map[status]}>{label}</span>
+function statusToBadge(status: Initiative['status']) {
+  switch (status) {
+    case 'nyt': return <Badge variant="new">NYT</Badge>
+    case 'aendres': return <Badge variant="change">ÆNDRES</Badge>
+    case 'ophorer': return <Badge variant="stop">OPHØRER</Badge>
+  }
 }
 
 
@@ -25,7 +23,7 @@ return (
 <p className="muted">{init.beskrivelse}</p>
 </div>
 <div className="flex-shrink-0">
-<StatusBadge status={init.status} />
+{statusToBadge(init.status)}
 </div>
 </div>
 

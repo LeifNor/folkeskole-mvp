@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import RolePicker from '@/components/RolePicker'
 import InitiativeCard from '@/components/InitiativeCard'
 import Timeline from '@/components/Timeline'
+import BadgeLegend from '@/components/BadgeLegend'
 import { initiatives } from '@/lib/data/initiatives'
 import type { Role } from '@/lib/roles'
 import { getInitialRole } from '@/lib/roles'
@@ -25,6 +26,9 @@ return (
 <div className="lg:flex-shrink-0">
 <RolePicker onChange={setRole} />
 </div>
+</div>
+<div className="mt-4">
+<BadgeLegend />
 </div>
 </section>
 

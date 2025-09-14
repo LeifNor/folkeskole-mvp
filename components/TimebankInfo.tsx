@@ -8,6 +8,7 @@ import {
   Tooltip,
   ResponsiveContainer
 } from 'recharts'
+import Badge from '@/components/Badge'
 
 type Props = {
   role?: 'laerer' | 'elev' | 'ledelse' | 'foraeldre'
@@ -38,7 +39,9 @@ export default function TimebankInfo({ role }: Props) {
 
   return (
     <section className="card p-4 sm:p-6">
-      <h2 className="h2 mb-4">Timebanken</h2>
+      <h2 className="h2 mb-4 flex items-center gap-2">
+        Timebanken <Badge variant="new">NYT</Badge>
+      </h2>
       <p className="text-gray-700 leading-relaxed">{text}</p>
 
       {!role && (
