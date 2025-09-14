@@ -4,12 +4,21 @@ import { ROLE_LABELS } from '@/lib/roles'
 import { initiatives } from '@/lib/data/initiatives'
 import InitiativeCard from '@/components/InitiativeCard'
 import Accordion from '@/components/Accordion'
+import Breadcrumb from '@/components/Breadcrumb'
 
 export default function ActorPage() {
   const role = 'laerer' as Role
 
+  const breadcrumbItems = [
+    { label: 'Hjem', href: '/' },
+    { label: 'Aktører', href: '/' },
+    { label: ROLE_LABELS[role] }
+  ]
+
   return (
     <main className="space-y-12">
+      <Breadcrumb items={breadcrumbItems} />
+      
       <header className="space-y-2">
         <div className="kicker">Aktørsider</div>
         <h1 className="h1">{ROLE_LABELS[role]}</h1>

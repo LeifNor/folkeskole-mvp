@@ -1,6 +1,8 @@
 import { notFound } from 'next/navigation'
 import { initiatives } from '@/lib/data/initiatives'
 import ImpactTabs from '@/components/ImpactTabs'
+import Breadcrumb from '@/components/Breadcrumb'
+import BackButton from '@/components/BackButton'
 
 
 export function generateStaticParams() {
@@ -10,8 +12,20 @@ export function generateStaticParams() {
 export default function InitiativePage({ params }: { params: { id: string } }) {
 const init = initiatives.find(i => i.id === params.id)
 if (!init) return notFound()
+
+const breadcrumbItems = [
+  { label: 'Hjem', href: '/' },
+  { label: 'Initiativer', href: '/' },
+  { label: init.titel }
+]
+
 return (
 <main className="space-y-4 sm:space-y-6">
+<div className="flex items-center justify-between">
+<Breadcrumb items={breadcrumbItems} />
+<BackButton />
+</div>
+
 <article className="card p-4 sm:p-6">
 <div className="kicker">Ikraft: {new Date(init.ikraft).toLocaleDateString('da-DK')}</div>
 <h1 className="h1 mb-2 break-words">{init.titel}</h1>
