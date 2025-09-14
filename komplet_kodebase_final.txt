@@ -321,19 +321,16 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               <nav className="w-full sm:w-auto">
                 <div className="grid grid-cols-2 gap-2 sm:flex sm:gap-3">
                   <a className="btn col-span-1 flex-1 sm:flex-none justify-center text-center" href="/">
-                    <span className="hidden sm:inline">Overblik</span>
-                    <span className="sm:hidden">Hjem</span>
+                    Overblik
                   </a>
                   <a className="btn col-span-1 flex-1 sm:flex-none justify-center text-center" href="/tidslinje">
-                    <span className="hidden sm:inline">Tidslinje</span>
-                    <span className="sm:hidden">Tid</span>
+                    Tidslinje
                   </a>
                   <div className="col-span-1">
                     <DropdownMenu trigger="Aktører" />
                   </div>
                   <a className="btn col-span-1 flex-1 sm:flex-none justify-center text-center" href="/timebank">
-                    <span className="hidden sm:inline">Timebank</span>
-                    <span className="sm:hidden">Bank</span>
+                    Timebank
                   </a>
                   <a className="btn col-span-2 sm:col-span-1 flex-1 sm:flex-none justify-center text-center" href="/kilder">
                     Kilder
@@ -359,11 +356,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 ```tsx
 'use client'
 import { useEffect, useState } from 'react'
-import RolePicker from '@/components/RolePicker'
 import InitiativeCard from '@/components/InitiativeCard'
 import Timeline from '@/components/Timeline'
-import BadgeLegend from '@/components/BadgeLegend'
 import { initiatives } from '@/lib/data/initiatives'
+import { timeline } from '@/lib/data/timeline'
 import type { Role } from '@/lib/roles'
 import { getInitialRole } from '@/lib/roles'
 
@@ -373,22 +369,6 @@ export default function Page() {
 
   return (
     <main className="space-y-6 sm:space-y-8">
-      <section className="card p-4 sm:p-6">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex-1">
-            <div className="kicker">Personalisering</div>
-            <h2 className="h2">Vælg din rolle</h2>
-            <p className="muted">Indholdet målrettes efter dit valg (gemmes lokalt).</p>
-          </div>
-          <div className="lg:flex-shrink-0">
-            <RolePicker onChange={setRole} />
-          </div>
-        </div>
-        <div className="mt-4">
-          <BadgeLegend />
-        </div>
-      </section>
-
       <section className="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
         {initiatives.map((init) => (
           <InitiativeCard key={init.id} init={init} role={role} />
@@ -397,8 +377,8 @@ export default function Page() {
 
       <section className="card p-4 sm:p-6">
         <div className="kicker">Tidslinje</div>
-        <h2 className="h2 mb-2">Vigtige ikrafttrædelser</h2>
-        <Timeline items={initiatives} />
+        <h2 className="h2 mb-2">Vigtige milepæle</h2>
+        <Timeline items={timeline} />
       </section>
     </main>
   )
@@ -506,6 +486,29 @@ body {
 @supports (-webkit-overflow-scrolling: touch) {
   .dropdown-menu {
     -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Enhanced mobile touch support for dropdowns */
+button[aria-haspopup="true"] {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Ensure dropdown buttons have consistent touch targets */
+.btn {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Mobile dropdown positioning fix */
+@media (max-width: 640px) {
+  [role="menu"], [aria-haspopup="true"] + div {
+    max-width: 100vw;
+    left: 0 !important;
+    right: 0 !important;
+    margin: 0 auto;
   }
 }
 ```
@@ -652,18 +655,17 @@ export default function DropdownMenu({ trigger, className = '' }: DropdownMenuPr
 
   const roles: Role[] = ['laerer', 'elev', 'ledelse', 'foraeldre']
 
-  const handleToggle = (e: React.MouseEvent | React.TouchEvent) => {
+  const handleToggle = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
     setIsOpen(!isOpen)
   }
 
   return (
-    <div className={`relative ${className}`} ref={dropdownRef}>
+    <div className={`relative w-full ${className}`} ref={dropdownRef}>
       <button
         onClick={handleToggle}
-        onTouchEnd={handleToggle}
-        className="btn flex items-center gap-1 flex-1 sm:flex-none justify-center min-h-[44px] touch-manipulation"
+        className="btn w-full flex items-center gap-1 justify-center min-h-[44px] sm:min-h-[48px] touch-manipulation"
         aria-expanded={isOpen}
         aria-haspopup="true"
         type="button"
@@ -676,24 +678,21 @@ export default function DropdownMenu({ trigger, className = '' }: DropdownMenuPr
 
       {isOpen && (
         <>
-          {/* Backdrop for mobile - helps with z-index and touch handling */}
+          {/* Backdrop for mobile */}
           <div 
             className="fixed inset-0 z-40 sm:hidden" 
             onClick={() => setIsOpen(false)}
-            onTouchEnd={() => setIsOpen(false)}
           />
           
-          <div className="absolute top-full left-0 mt-1 w-48 sm:w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50 
-                        max-sm:fixed max-sm:left-3 max-sm:right-3 max-sm:w-auto max-sm:z-[60]">
+          <div className="absolute top-full left-0 mt-1 w-full sm:w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
             {roles.map((role) => (
               <Link
                 key={role}
                 href={`/aktor/${role}`}
                 className="block px-4 py-4 text-sm hover:bg-gray-50 active:bg-gray-100 first:rounded-t-lg last:rounded-b-lg
-                         max-sm:text-center max-sm:py-4 max-sm:min-h-[44px] max-sm:flex max-sm:items-center max-sm:justify-center
+                         text-center min-h-[44px] flex items-center justify-center
                          touch-manipulation transition-colors"
                 onClick={() => setIsOpen(false)}
-                onTouchEnd={() => setIsOpen(false)}
               >
                 {ROLE_LABELS[role]}
               </Link>

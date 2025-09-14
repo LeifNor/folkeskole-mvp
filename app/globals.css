@@ -106,3 +106,26 @@ body {
     -webkit-overflow-scrolling: touch;
   }
 }
+
+/* Enhanced mobile touch support for dropdowns */
+button[aria-haspopup="true"] {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Ensure dropdown buttons have consistent touch targets */
+.btn {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Mobile dropdown positioning fix */
+@media (max-width: 640px) {
+  [role="menu"], [aria-haspopup="true"] + div {
+    max-width: 100vw;
+    left: 0 !important;
+    right: 0 !important;
+    margin: 0 auto;
+  }
+}
